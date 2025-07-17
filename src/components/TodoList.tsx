@@ -32,7 +32,7 @@ export const TodoList: React.FC<Props> = ({
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {isLoading && !todoList.length ? (
-        <div className="modal overlay is-active">
+        <div className={`modal overlay ${isLoading ? 'is-active' : ''}`}>
           <div className="modal-background has-background-white-ter" />
           <div className="loader" />
         </div>

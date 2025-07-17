@@ -7,10 +7,10 @@ import { ErrorMessages } from './types/ErrorMessages';
 import { getTodos, deleteTodo as apiDeleteTodo, createTodo } from './api/todos';
 import { Header } from './components/Header';
 import { ErrorNotification } from './components/ErrorNotification';
-import { TodoFilter } from './components/TodoFilter';
 import { TodoList } from './components/TodoList';
 import { FilterType } from './types/FilterType';
 import { TodoItem } from './components/TodoItem';
+import { Footer } from './components/Footer';
 
 const USER_ID = 2576;
 
@@ -27,6 +27,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setIsLoading(true);
+    setCurrentFilter(FilterType.all);
     setErrorMessage(ErrorMessages.default);
 
     getTodos()
@@ -42,9 +43,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     inputRef.current?.focus();
   }, [isLoading]);
-
-  const activeTodosCount = todoList.filter(todo => !todo.completed).length;
-  const hasCompletedTodos = todoList.some(todo => todo.completed);
 
   function deleteTodo(todoId: number) {
     setIsLoading(true);
@@ -90,9 +88,7 @@ export const App: React.FC = () => {
     const trimmedTitle = todoTitle.trim();
 
     if (!trimmedTitle) {
-      setErrorMessage(
-        ErrorMessages.emptyTitleError || 'Title should not be empty',
-      );
+      setErrorMessage(ErrorMessages.emptyTitleError);
 
       return;
     }
@@ -148,33 +144,21 @@ export const App: React.FC = () => {
           deleteTodo={deleteTodo}
         />
 
-        {tempTodo && (
+        {tempTodo && currentFilter !== FilterType.completed && (
           <TodoItem todo={tempTodo} deleteTodo={() => {}} isTemp={true} />
         )}
 
         {todoList.length > 0 && (
-          <footer className="todoapp__footer" data-cy="Footer">
-            <span className="todo-count" data-cy="TodosCounter">
-              {`${activeTodosCount} item${activeTodosCount !== 1 ? 's' : ''} left`}
-            </span>
-
-            <TodoFilter
-              currentFilter={currentFilter}
-              onChange={setCurrentFilter}
-            />
-            <button
-              type="button"
-              className="todoapp__clear-completed"
-              data-cy="ClearCompletedButton"
-              disabled={!hasCompletedTodos}
-              onClick={clearCompletedTodos}
-            >
-              Clear completed
-            </button>
-          </footer>
+          <Footer
+            todoList={todoList}
+            clearCompletedTodos={clearCompletedTodos}
+            currentFilter={currentFilter}
+            setCurrentFilter={setCurrentFilter}
+          />
         )}
       </div>
       <ErrorNotification
+        key={errorMessage}
         errorMessage={errorMessage}
         removeError={() => {
           setErrorMessage(ErrorMessages.default);

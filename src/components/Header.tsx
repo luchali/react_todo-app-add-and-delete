@@ -1,4 +1,4 @@
-import React, { RefObject, useEffect, useRef } from 'react';
+import React, { RefObject, useEffect } from 'react';
 
 type Props = {
   title: string;
@@ -8,11 +8,15 @@ type Props = {
   disabled: boolean;
 };
 
-export const Header: React.FC<Props> = ({ title, onChange, onAdd }) => {
-  const field = useRef<HTMLInputElement>(null);
-
+export const Header: React.FC<Props> = ({
+  title,
+  onChange,
+  onAdd,
+  inputRef,
+  disabled,
+}) => {
   useEffect(() => {
-    field.current?.focus();
+    inputRef.current?.focus();
   }, []);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
@@ -20,9 +24,7 @@ export const Header: React.FC<Props> = ({ title, onChange, onAdd }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (title.trim()) {
-      onAdd(title.trim());
-    }
+    onAdd(title.trim());
   };
 
   return (
@@ -42,9 +44,10 @@ export const Header: React.FC<Props> = ({ title, onChange, onAdd }) => {
           name="title"
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
-          ref={field}
+          ref={inputRef}
           value={title}
           onChange={handleChange}
+          disabled={disabled}
         />
       </form>
     </header>
