@@ -47,6 +47,7 @@ export const App: React.FC = () => {
 
   const deleteTodo = (todoId: number) => {
     setLoadingTodoIds(ids => [...ids, todoId]);
+    setIsLoading(true);
 
     apiDeleteTodo(todoId)
       .then(() => {
@@ -56,6 +57,7 @@ export const App: React.FC = () => {
         setErrorMessage(ErrorMessages.deleteError);
       })
       .finally(() => {
+        setIsLoading(false);
         setLoadingTodoIds(ids => ids.filter(id => id !== todoId));
       });
   };
