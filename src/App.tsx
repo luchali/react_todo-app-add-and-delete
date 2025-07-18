@@ -23,6 +23,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+  const [loadingTodoIds, setLoadingTodoIds] = useState<number[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -44,19 +45,20 @@ export const App: React.FC = () => {
     inputRef.current?.focus();
   }, [isLoading]);
 
-  function deleteTodo(todoId: number) {
-    setIsLoading(true);
+  const deleteTodo = (todoId: number) => {
+    setLoadingTodoIds(ids => [...ids, todoId]);
+
     apiDeleteTodo(todoId)
       .then(() => {
-        setTodoList(currentTodos =>
-          currentTodos.filter(todo => todo.id !== todoId),
-        );
+        setTodoList(todos => todos.filter(todo => todo.id !== todoId));
       })
       .catch(() => {
         setErrorMessage(ErrorMessages.deleteError);
       })
-      .finally(() => setIsLoading(false));
-  }
+      .finally(() => {
+        setLoadingTodoIds(ids => ids.filter(id => id !== todoId));
+      });
+  };
 
   function clearCompletedTodos() {
     const completedTodos = todoList.filter(todo => todo.completed);
@@ -68,20 +70,7 @@ export const App: React.FC = () => {
     }
 
     setIsLoading(true);
-
-    Promise.all(completedTodos.map(todo => apiDeleteTodo(todo.id)))
-      .then(() => {
-        setTodoList(currentTodos =>
-          currentTodos.filter(todo => !todo.completed),
-        );
-      })
-      .catch(() => {
-        setErrorMessage(ErrorMessages.deleteError || 'Unable to delete todos');
-      })
-      .finally(() => {
-        setIsLoading(false);
-        inputRef.current?.focus();
-      });
+    completedTodos.forEach(todo => deleteTodo(todo.id));
   }
 
   function addTodo(todoTitle: string) {
@@ -138,14 +127,14 @@ export const App: React.FC = () => {
         />
 
         <TodoList
-          isLoading={isLoading}
+          loadingTodoIds={loadingTodoIds}
           todoList={todoList}
           currentFilter={currentFilter}
           deleteTodo={deleteTodo}
         />
 
-        {tempTodo && currentFilter !== FilterType.completed && (
-          <TodoItem todo={tempTodo} deleteTodo={() => {}} isTemp={true} />
+        {tempTodo && (
+          <TodoItem todo={tempTodo} deleteTodo={() => {}} isLoading={true} />
         )}
 
         {todoList.length > 0 && (

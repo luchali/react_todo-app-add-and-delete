@@ -5,14 +5,14 @@ import { TodoItem } from './TodoItem';
 
 type Props = {
   todoList: Todo[];
-  isLoading: boolean;
+  loadingTodoIds: number[];
   deleteTodo: (todoId: number) => void;
   currentFilter: FilterType;
 };
 
 export const TodoList: React.FC<Props> = ({
   todoList,
-  isLoading,
+  loadingTodoIds,
   deleteTodo,
   currentFilter,
 }) => {
@@ -31,16 +31,14 @@ export const TodoList: React.FC<Props> = ({
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
-      {isLoading && !todoList.length ? (
-        <div className={`modal overlay ${isLoading ? 'is-active' : ''}`}>
-          <div className="modal-background has-background-white-ter" />
-          <div className="loader" />
-        </div>
-      ) : (
-        filteredTodos.map(todo => (
-          <TodoItem key={todo.id} todo={todo} deleteTodo={deleteTodo} />
-        ))
-      )}
+      {filteredTodos.map(todo => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          deleteTodo={deleteTodo}
+          isLoading={loadingTodoIds.includes(todo.id)}
+        />
+      ))}
     </section>
   );
 };

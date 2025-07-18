@@ -6,9 +6,10 @@ type Props = {
   todo: Todo;
   deleteTodo: (todoId: number) => void;
   isTemp?: boolean;
+  isLoading?: boolean;
 };
 
-export const TodoItem: React.FC<Props> = ({ todo, deleteTodo, isTemp }) => {
+export const TodoItem: React.FC<Props> = ({ todo, deleteTodo, isLoading }) => {
   const { id, completed, title } = todo;
 
   return (
@@ -39,7 +40,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo, isTemp }) => {
         className="todo__remove"
         data-cy="TodoDelete"
         onClick={() => deleteTodo(todo.id)}
-        disabled={isTemp}
+        disabled={isLoading}
       >
         ×
       </button>
@@ -47,7 +48,7 @@ export const TodoItem: React.FC<Props> = ({ todo, deleteTodo, isTemp }) => {
       {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
-        className={`modal overlay${isTemp ? ' is-active' : ''}`}
+        className={`modal overlay${isLoading ? ' is-active' : ''}`}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
